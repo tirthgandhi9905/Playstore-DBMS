@@ -16,7 +16,6 @@ Our project focuses on modeling and managing data for applications, books, devel
 | 🔸 BCNF Proof               | Proof that each relation is in Boyce-Codd Normal Form                       |
 | 🔸 SQL DDL Script           | Complete script with `CREATE TABLE`, constraints, and meaningful triggers   |
 | 🔸 Triggers                 | Logical triggers ensuring data consistency (like downloads, ratings, etc.) |
-| 🔸 Final Submission PDF     | Consolidated PDF for project submission                                     |
 
 ---
 
@@ -48,7 +47,7 @@ _Refer to `/ER-Diagram/Playstore_ER.png`_
 
 - **Group ID**: GXX  
 - **Team Members**:
-  - Tirth Gandhi (and add others as needed)
+  - Tirth Gandhi 
 
 ---
 
@@ -57,3 +56,20 @@ _Refer to `/ER-Diagram/Playstore_ER.png`_
 1. Clone the repo:
    ```bash
    git clone https://github.com/your-username/Playstore-DBMS-Project.git
+   ```
+
+2. Import the SQL script:
+   - Open MySQL Workbench or your DBMS tool
+   - Run: `playstore_final_ddl.sql` to create all tables and triggers
+
+3. You’re ready to test and populate!
+
+---
+
+## 📄 License
+
+This project is part of an academic assignment and intended for educational use only.
+
+---
+
+### ⭐ If you like the project, give it a star!
