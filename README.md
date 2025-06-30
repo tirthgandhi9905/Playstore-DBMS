@@ -1,75 +1,52 @@
 # 📱 Playstore DBMS Project
 
-This repository contains the complete database design and implementation of a Playstore-style platform built as part of our **Database Management Systems (DBMS)** course project.
+This repository contains the **complete database design and implementation** of a Playstore-style platform, developed as part of our **Database Management Systems (DBMS)** course project.
 
-Our project focuses on modeling and managing data for applications, books, developers, users, purchases, and offers—similar to how the Google Playstore operates.
-
----
-
-## 📚 Contents
-
-| Section                     | Description                                                                 |
-|----------------------------|-----------------------------------------------------------------------------|
-| 🔸 ER Diagram               | Entity-Relationship Diagram showing the full logical model                  |
-| 🔸 Relational Schema        | All relations (tables), primary keys, and foreign keys                      |
-| 🔸 Minimal FD Set           | Cleaned set of functional dependencies for all relations                    |
-| 🔸 BCNF Proof               | Proof that each relation is in Boyce-Codd Normal Form                       |
-| 🔸 SQL DDL Script           | Complete script with `CREATE TABLE`, constraints, and meaningful triggers   |
-| 🔸 Triggers                 | Logical triggers ensuring data consistency (like downloads, ratings, etc.) |
+The project models real-world entities such as apps, books, developers, users, purchases, and promotional offers—mirroring the architecture and data flow of the Google Play Store.
 
 ---
 
-## 📌 Project Features
+## 📂 Repository Structure
 
-- ✅ Well-normalized schema in **BCNF**
-- ✅ Includes real-world Playstore entities: apps, users, developers, books, offers, and purchases
-- ✅ Implements **data integrity via triggers** and foreign keys
-- ✅ Designed for **scalability**, **consistency**, and **clean querying**
-
----
-
-## 🛠️ Tech Stack
-
-- **SQL** (DDL, Constraints, Triggers)
-- **MySQL** or compatible RDBMS
-- **Draw.io / ERD Tool** for diagramming
-- **GitHub** for version control and collaboration
+| Section                 | Description                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| `ER-Diagram/`          | Entity-Relationship diagram (`Playstore_ER.png`)                            |
+| `Relational-Schema/`   | List of relations with attributes, primary keys, and foreign keys           |
+| `FD-Sets/`             | Minimal set of functional dependencies for each relation                    |
+| `BCNF-Proofs/`         | Step-by-step BCNF normalization and proofs                                  |
+| `SQL-Scripts/`         | SQL DDL script including table creation and constraint definitions          |
+| `Triggers/`            | SQL triggers enforcing logical consistency (e.g., for downloads, ratings)   |
 
 ---
 
-## 📷 ER Diagram Snapshot
+## 🚀 Key Features
 
-_Refer to `/ER-Diagram/Playstore_ER.png`_
-
----
-
-## 👥 Team Info
-
-- **Group ID**: GXX  
-- **Team Members**:
-  - Tirth Gandhi 
+- ✅ **Normalized Schema**: All relations are in **Boyce-Codd Normal Form (BCNF)**
+- ✅ **Referential Integrity**: Foreign key constraints maintain consistency across entities
+- ✅ **Logical Triggers**: Ensures valid operations like app downloads, purchases, and reviews
+- ✅ **Scalable Design**: Structured for potential expansion in future applications
+- ✅ **Real-World Entities**: Includes apps, users, developers, books, offers, and purchases
 
 ---
 
-## 📝 How to Run
+## 💻 Tech Stack
 
-1. Clone the repo:
+- **PostgreSQL** for schema implementation, constraints, and triggers
+- **SQL** (DDL, Triggers, Normalization proofs)
+- **Dia Software** for ER diagram design
+- **Git & GitHub** for version control and collaboration
+
+---
+
+## 📸 ER Diagram Preview
+
+![ER Diagram](ER-Diagram/Playstore_ER.png)
+
+---
+
+## ⚙️ How to Use
+
+1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/your-username/Playstore-DBMS-Project.git
-   ```
-
-2. Import the SQL script:
-   - Open MySQL Workbench or your DBMS tool
-   - Run: `playstore_final_ddl.sql` to create all tables and triggers
-
-3. You’re ready to test and populate!
-
----
-
-## 📄 License
-
-This project is part of an academic assignment and intended for educational use only.
-
----
-
-### ⭐ If you like the project, give it a star!
+   git clone https://github.com/tirthgandhi9905/Playstore-DBMS.git
+   cd Playstore-DBMS
