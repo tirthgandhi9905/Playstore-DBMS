@@ -1,0 +1,350 @@
+* DDL Scripts :  
+
+
+                             ==========================
+–                      DDL SCRIPT FOR PLAYSTORE DBMS PROJECT
+–                           ==========================
+
+
+
+
+-- 1. USER Table
+CREATE TABLE "USER" (
+    User_ID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Email VARCHAR(100) UNIQUE,
+    Signup_Date DATE,
+    Role VARCHAR(50),
+    Country VARCHAR(50)
+);
+
+
+-- Trigger function to set default Role
+CREATE OR REPLACE FUNCTION set_default_role()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.Role IS NULL THEN
+        NEW.Role := 'User';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger to call the function before insert
+CREATE TRIGGER trg_default_role
+BEFORE INSERT ON "USER"
+FOR EACH ROW
+EXECUTE PROCEDURE set_default_role();
+
+
+
+
+-- 2. DEVELOPER TABLE
+CREATE TABLE DEVELOPER (
+Developer_ID INT PRIMARY KEY,
+Name VARCHAR(100),
+Contact_Info VARCHAR(100),
+Description TEXT,
+Revenue DECIMAL(15, 2),
+Country VARCHAR(50)
+);
+
+
+-- 3. APPLICATION TABLE
+CREATE TABLE APPLICATION (
+App_ID INT PRIMARY KEY,
+Name VARCHAR(100),
+Release_Date DATE,
+Description TEXT,
+Size DECIMAL(10, 2),
+Price DECIMAL(10, 2),
+Number_of_Downloads INT DEFAULT 0
+);
+
+
+-- 4. UPDATES TABLE
+CREATE TABLE UPDATES (
+App_ID INT,
+Update_Size DECIMAL(10,2),
+Release_Date DATE,
+Version VARCHAR(20),
+PRIMARY KEY (App_ID, Version),
+FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID)
+);
+
+
+-- 5. PERMISSION TABLE
+CREATE TABLE PERMISSION (
+App_ID INT,
+Permission VARCHAR(100),
+PRIMARY KEY (App_ID, Permission),
+FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID)
+);
+
+
+-- Trigger function to prevent duplicates with a custom error message
+CREATE OR REPLACE FUNCTION prevent_duplicate_permission()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM PERMISSION
+        WHERE App_ID = NEW.App_ID AND Permission = NEW.Permission
+    ) THEN
+        RAISE EXCEPTION 'Duplicate permission entry for the same application';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger that uses the function
+CREATE TRIGGER trg_unique_permission
+BEFORE INSERT ON PERMISSION
+FOR EACH ROW
+EXECUTE PROCEDURE prevent_duplicate_permission();
+
+
+
+
+--6. DOWNLOAD_BY Table
+CREATE TABLE DOWNLOAD_BY (
+    App_ID INT,
+    User_ID INT,
+    Download_Date DATE,
+    PRIMARY KEY (App_ID, User_ID, Download_Date),
+    FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID),
+    FOREIGN KEY (User_ID) REFERENCES "USER"(User_ID)
+);
+
+
+-- Trigger function: Increment number of downloads
+CREATE OR REPLACE FUNCTION increment_downloads()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE APPLICATION
+    SET Number_of_Downloads = Number_of_Downloads + 1
+    WHERE App_ID = NEW.App_ID;
+    RETURN NULL; -- AFTER trigger doesn't need to return NEW
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+-- Trigger: AFTER INSERT on DOWNLOAD_BY
+CREATE TRIGGER trg_increment_downloads
+AFTER INSERT ON DOWNLOAD_BY
+FOR EACH ROW
+EXECUTE PROCEDURE increment_downloads();
+
+
+-- 7. CREATED_BY TABLE
+CREATE TABLE CREATED_BY (
+App_ID INT,
+Developer_ID INT,
+Create_Date DATE,
+PRIMARY KEY (App_ID, Developer_ID),
+FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID),
+FOREIGN KEY (Developer_ID) REFERENCES DEVELOPER(Developer_ID)
+);
+
+
+-- 8. CATEGORY TABLE
+CREATE TABLE CATEGORY (
+Category_ID INT PRIMARY KEY,
+Name VARCHAR(100),
+Type VARCHAR(50)
+);
+
+
+-- 9. BELONGS_TO_1 (App to Category)
+CREATE TABLE BELONGS_TO_1 (
+App_ID INT,
+Category_ID INT,
+PRIMARY KEY (App_ID, Category_ID),
+FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID),
+FOREIGN KEY (Category_ID) REFERENCES CATEGORY(Category_ID)
+);
+
+
+
+-- 10. BELONGS_TO_2 (Book to Category)
+CREATE TABLE BELONGS_TO_2 (
+Book_ID INT,
+Category_ID INT,
+PRIMARY KEY (Book_ID, Category_ID),
+FOREIGN KEY (Book_ID) REFERENCES BOOKS(Book_ID),
+FOREIGN KEY (Category_ID) REFERENCES CATEGORY(Category_ID)
+);
+
+
+-- 11. BOOKS TABLE
+CREATE TABLE BOOKS (
+Book_ID INT PRIMARY KEY,
+Title VARCHAR(100),
+Price DECIMAL(10,2),
+Release_Date DATE,
+Publisher VARCHAR(100),
+Number_of_Sold_Books INT
+);
+
+
+-- 12. AUTHOR TABLE
+CREATE TABLE AUTHOR (
+Book_ID INT,
+Authors VARCHAR(100),
+PRIMARY KEY (Book_ID, Authors),
+FOREIGN KEY (Book_ID) REFERENCES BOOKS(Book_ID)
+);
+
+
+-- 13. PURCHASE TABLE
+CREATE TABLE PURCHASE (
+Order_ID INT PRIMARY KEY,
+Transaction_ID VARCHAR(50),
+Product_Type VARCHAR(20),
+Product_ID INT,
+Purchase_ID INT,
+Purchase_Date DATE,
+Amount DECIMAL(10,2),
+Payment_Method VARCHAR(50)
+);
+
+
+--14. BUY_APP TABLE
+CREATE TABLE BUY_APP (
+    User_ID INT,
+    App_ID INT,
+    Order_ID INT,
+    PRIMARY KEY (User_ID, App_ID, Order_ID),
+    FOREIGN KEY (User_ID) REFERENCES "USER"(User_ID),
+    FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID),
+    FOREIGN KEY (Order_ID) REFERENCES PURCHASE(Order_ID)
+);
+
+
+-- 15. BUY_BOOK TABLE
+CREATE TABLE BUY_BOOK (
+User_ID INT,
+Book_ID INT,
+Order_ID INT,
+PRIMARY KEY (User_ID, Book_ID, Order_ID),
+FOREIGN KEY (User_ID) REFERENCES "USER"(User_ID),
+FOREIGN KEY (Book_ID) REFERENCES BOOKS(Book_ID),
+FOREIGN KEY (Order_ID) REFERENCES PURCHASE(Order_ID)
+);
+
+
+-- 16. OFFERS TABLE
+CREATE TABLE OFFERS (
+Offer_ID INT PRIMARY KEY,
+Title VARCHAR(100),
+Description TEXT,
+Discount_Percentage DECIMAL(5,2),
+Start_Date DATE,
+End_Date DATE,
+Offer_Type VARCHAR(50),
+Status VARCHAR(50)
+);
+
+
+-- 17. OFFERED_TO_1 (Apps)
+CREATE TABLE OFFERED_TO_1 (
+App_ID INT,
+Offer_ID INT,
+PRIMARY KEY (App_ID, Offer_ID),
+FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID),
+FOREIGN KEY (Offer_ID) REFERENCES OFFERS(Offer_ID)
+);
+
+
+-- 18. OFFERED_TO_2 (Books)
+CREATE TABLE OFFERED_TO_2 (
+Book_ID INT,
+Offer_ID INT,
+PRIMARY KEY (Book_ID, Offer_ID),
+FOREIGN KEY (Book_ID) REFERENCES BOOKS(Book_ID),
+FOREIGN KEY (Offer_ID) REFERENCES OFFERS(Offer_ID)
+);
+
+
+-- Trigger function: Prevent overlapping offers for the same app
+CREATE OR REPLACE FUNCTION prevent_overlapping_offers()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM OFFERS O
+        JOIN OFFERED_TO_1 OT ON O.Offer_ID = OT.Offer_ID
+        WHERE OT.App_ID = NEW.App_ID
+          AND CURRENT_DATE BETWEEN O.Start_Date AND O.End_Date
+    ) THEN
+        RAISE EXCEPTION 'Overlapping offers for the same app are not allowed';
+    END IF;
+
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger creation
+CREATE TRIGGER trg_no_overlapping_offers
+BEFORE INSERT ON OFFERED_TO_1
+FOR EACH ROW
+EXECUTE PROCEDURE prevent_overlapping_offers();
+
+
+-- 19. APPLICABLE_PRODUCTS TABLE
+CREATE TABLE APPLICABLE_PRODUCTS (
+Offer_ID INT,
+Applicable_Products VARCHAR(100),
+PRIMARY KEY (Offer_ID, Applicable_Products),
+FOREIGN KEY (Offer_ID) REFERENCES OFFERS(Offer_ID)
+);
+
+
+-- 20. ELIGIBILITY TABLE
+CREATE TABLE ELIGIBILITY (
+Offer_ID INT,
+Eligibility VARCHAR(100),
+PRIMARY KEY (Offer_ID, Eligibility),
+FOREIGN KEY (Offer_ID) REFERENCES OFFERS(Offer_ID)
+);
+
+
+-- 21. REVIEWS table
+CREATE TABLE REVIEWS (
+    Review_ID INT PRIMARY KEY,
+    Rating INT,
+    Review TEXT,
+    Date_and_Time TIMESTAMP,
+    User_ID INT,
+    App_ID INT,
+    Book_ID INT,
+    FOREIGN KEY (User_ID) REFERENCES "USER"(User_ID),
+    FOREIGN KEY (App_ID) REFERENCES APPLICATION(App_ID),
+    FOREIGN KEY (Book_ID) REFERENCES BOOKS(Book_ID)
+);
+
+
+-- Trigger function to validate rating
+CREATE OR REPLACE FUNCTION validate_rating()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.Rating < 1 OR NEW.Rating > 5 THEN
+        RAISE EXCEPTION 'Rating must be between 1 and 5';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger to call the function
+CREATE TRIGGER trg_validate_rating
+BEFORE INSERT ON REVIEWS
+FOR EACH ROW
+EXECUTE PROCEDURE validate_rating();
+
+
+-- end of the file ...
